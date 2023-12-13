@@ -1,37 +1,36 @@
 import heapq
 
-graph = {"a": {"c"},
-          "b": {"c", "e"},
-          "c": {"a", "b", "d", "e"},
-          "d": {"c"},
-          "e": {"c", "b"},
-          "f": {}
-        }
+graph = {"a": {"c"},                    #This graph is dedicated to test BFS
+         "b": {"c", "e"},
+         "c": {"a", "b", "d", "e"},
+         "d": {"c"},
+         "e": {"c", "b"},
+         "f": {}}
 
 weighted_graph = {"a": {"c": 4, "b": 4},
-                  "b": {"a": 4, "c": 2, "d": 3, "e": 7, "f": 6},
+                  "b": {"a": 4, "c": 2, "d": 3, "e": 7, "f": 6},        #This Graph is dedicated to test Dijkstra
                   "c": {"a": 4, "b": 2},
                   "d": {"b": 3, "f": 2},
                   "e": {"b": 7, "f": 3},
-                  "f": {"d": 2, "e": 3}
-                 }
+                  "f": {"d": 2, "e": 3}}
 
-weighted_graph_negative = {"a": {"c": 10, "b": 20},
+weighted_graph_negative = {"a": {"c": 10, "b": 20},             #This Graph is dedicated to test Bellman-Ford
                            "b": {"d": 33, "e": 20},
                            "c": {"d": 10, "e": 50},
-                           "d": { "f": 1},
+                           "d": {"f": 1},
                            "e": {"d": -20, "f": -2},
-                           "f": {}
-                        }
+                           "f": {}}
 
-weighted_graph_mat = {"a": {"b": 3, "d": 5},
-                  "b": {"a": 2, "d": 4},
-                  "c": {"b": 1},
-                  "d": {"c": 2},
-                 }
+weighted_graph_mat = {"a": {"b": 3, "d": 5},                    #This Graph is dedicated to test the conversion into a matrix function (currently not working)
+                      "b": {"a": 2, "d": 4},
+                      "c": {"b": 1},
+                      "d": {"c": 2}, }
+INF = 999
+test_matrix_floyd = [[0, 3, INF, 5], [2, 0, INF, 4], [INF, 1, 0, INF], [INF, INF, 2, 0]]    #This Matrix is dedicated to test Floyd-Warshall
 
 
-class matrix:
+
+class Matrix:
     def __init__(self, num_of_vertices):
         self.num_of_vertices = num_of_vertices
         self.matrix = [[float('inf')] * num_of_vertices for _ in range(num_of_vertices)]
@@ -46,17 +45,18 @@ class matrix:
         for row in self.matrix:
             print(row)
 
-
-    def get_weight(self,from_vertex,to_vertex):
+    def get_weight(self, from_vertex, to_vertex):
         print(self.matrix[from_vertex][to_vertex])
 
+
+"""
     def convert_from_dict(self,graph):
         vertices = set()
         for i, j in graph.items():
             vertices.add(i)
             vertices.update(j)
 
-        vertex_to_index = {vertex: index for index, vertex in enumerate(vertices)}
+        vertex_to_index = {vertex: index for index, vertex in enumerate(vertices, start= 0)}
 
         self.num_of_vertices = len(graph)
         self.matrix = [[float('inf')] * self.num_of_vertices for _ in range(self.num_of_vertices)]
@@ -65,19 +65,23 @@ class matrix:
             for subkey, weight in subkeys.items():
                 subkey_index = vertex_to_index[subkey]
                 self.add_edge(key_index, subkey_index, weight)
-
-
 """
-print(weighted_graph_mat.items())
-test_matrix = matrix(len(weighted_graph))
+print(len(weighted_graph_mat.items()))
+test_matrix = Matrix(len(weighted_graph_mat))
+""""
 test_matrix.print_matrix()
 print(" ")
 print(" ")
-
-test_matrix.convert_from_dict(weighted_graph_mat)
+test_matrix.add_edge(0,1,5)
+test_matrix.add_edge(0,0,10)
 test_matrix.print_matrix()
-print(test_matrix.get_weight(1,0))
+print(" ")
+print(" ")
 """
+#test_matrix.convert_from_dict(weighted_graph_mat)
+#test_matrix.print_matrix()
+#print(test_matrix.get_weight(3, 0))
+
 
 visited = []
 queue = []
@@ -88,8 +92,8 @@ def breadth_first_search(graph, start_node):
     queue.append(start_node)
 
     while queue:
-        m= queue.pop(0)
-        print(m, end= " ")
+        m = queue.pop(0)
+        print(m, end=" ")
 
         for neighbor in graph[m]:
             if neighbor not in visited:
@@ -97,14 +101,10 @@ def breadth_first_search(graph, start_node):
                 queue.append(neighbor)
 
 
-
-
-
 def dijkstra(graph, start_node):
     queue.append((0, start_node))
     distances = {vertex: float('infinity') for vertex in graph}
     distances[start_node] = 0
-
 
     while queue:
         current_distance, current_vertex = heapq.heappop(queue)
@@ -112,7 +112,7 @@ def dijkstra(graph, start_node):
         if current_distance > distances[current_vertex]:
             continue
 
-        for neighbor,weight in graph[current_vertex].items():
+        for neighbor, weight in graph[current_vertex].items():
             distance = current_distance + weight
             if distance < distances[neighbor]:
                 distances[neighbor] = distance
@@ -127,11 +127,28 @@ def bellman(graph, start_node):
 
     for i in range(len(graph)):
         for u, neighbor in graph.items():
-            for v,weight in neighbor.items():
+            for v, weight in neighbor.items():
                 if distances[u] + weight < distances[v]:
-                    distances [v] = distances[u] + weight
+                    distances[v] = distances[u] + weight
 
     return distances
+
+
+def floyd_warshall(graph):
+    vertices = len(graph)
+    distance = list(map(lambda i: list(map(lambda j: j, i)), graph))
+    for k in range(vertices):
+        for i in range(vertices):
+            for j in range(vertices):
+                distance[i][j] = min(distance[i][j], distance[i][k] + distance[k][j])
+
+    return distance
+
+print("Floyd")
+print(floyd_warshall(test_matrix_floyd))
+
+print("original")
+print(test_matrix_floyd)
 
 
 def generate_edges(graph):
@@ -150,8 +167,3 @@ def find_isolated_nodes(graph):
         if not graph[node]:
             isolated.add(node)
     return isolated
-
-
-
-
-
