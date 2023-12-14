@@ -29,7 +29,29 @@ INF = 999
 test_matrix_floyd = [[0, 3, INF, 5], [2, 0, INF, 4], [INF, 1, 0, INF], [INF, INF, 2, 0]]    #This Matrix is dedicated to test Floyd-Warshall
 
 
-
+def dict_to_matrix(dict_input):
+    result_matrix = []
+    num_keys = len(dict_input)
+    key_list = list(dict_input.keys())
+    for i in key_list:
+        result_matrix.append([])
+        
+    for j in range(num_keys):
+        current_dict = dict_input[key_list[j]]
+        nested_key_list = list(current_dict.keys())
+        if len(nested_key_list) > len(key_list):
+            #For usage of graphs
+            raise ValueError("There are more values in inner dict than in outer dict") 
+        
+        for key in key_list:
+            if key in nested_key_list:
+                outer_key = key_list[j]
+                result_matrix[j].append(dict_input[outer_key][key])
+            else: 
+                result_matrix[j].append(999)
+        
+    return(result_matrix)
+         
 class Matrix:
     def __init__(self, num_of_vertices):
         self.num_of_vertices = num_of_vertices
